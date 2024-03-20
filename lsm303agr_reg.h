@@ -238,8 +238,7 @@ typedef struct
 typedef struct
 {
 #if DRV_BYTE_ORDER == DRV_LITTLE_ENDIAN
-uint8_t hp                     :
-  3; /* HPCLICK + HPIS2 + HPIS1 -> HP */
+  uint8_t hp                     : 3; /* HPCLICK + HPIS2 + HPIS1 -> HP */
   uint8_t fds                    : 1;
   uint8_t hpcf                   : 2;
   uint8_t hpm                    : 2;
@@ -247,8 +246,7 @@ uint8_t hp                     :
   uint8_t hpm                    : 2;
   uint8_t hpcf                   : 2;
   uint8_t fds                    : 1;
-uint8_t hp                     :
-  3; /* HPCLICK + HPIS2 + HPIS1 -> HP */
+  uint8_t hp                     : 3; /* HPCLICK + HPIS2 + HPIS1 -> HP */
 #endif /* DRV_BYTE_ORDER */
 } lsm303agr_ctrl_reg2_a_t;
 
@@ -1335,9 +1333,9 @@ int32_t lsm303agr_mag_int_gen_source_get(const stmdev_ctx_t *ctx,
                                          lsm303agr_int_source_reg_m_t *val);
 
 int32_t lsm303agr_mag_int_gen_threshold_set(const stmdev_ctx_t *ctx,
-                                           int16_t val);
+                                            int16_t val);
 int32_t lsm303agr_mag_int_gen_threshold_get(const stmdev_ctx_t *ctx,
-                                           int16_t *val);
+                                            int16_t *val);
 
 typedef enum
 {
