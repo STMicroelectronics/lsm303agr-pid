@@ -272,8 +272,7 @@ int32_t lsm303agr_temperature_raw_get(const stmdev_ctx_t *ctx, int16_t *val)
 
   if (ret != 0) { return ret; }
 
-  val[0] = (int16_t)buff[1];
-  val[0] = (val[0] * 256) + (int16_t)buff[0];
+  val[0] = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
 
   return ret;
 }
@@ -297,7 +296,7 @@ int32_t lsm303agr_temperature_meas_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    temp_cfg_reg_a.temp_en = (uint8_t)val;
+    temp_cfg_reg_a.temp_en = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_TEMP_CFG_REG_A,
                               (uint8_t *)&temp_cfg_reg_a, 1);
   }
@@ -380,7 +379,7 @@ int32_t lsm303agr_xl_operating_mode_set(const stmdev_ctx_t *ctx,
 
   ret = lsm303agr_read_reg(ctx, LSM303AGR_CTRL_REG1_A,
                            (uint8_t *)&ctrl_reg1_a, 1);
-  ctrl_reg1_a.lpen = (uint8_t)lpen;
+  ctrl_reg1_a.lpen = (uint8_t)lpen & 0x01U;
 
   if (ret == 0)
   {
@@ -396,7 +395,7 @@ int32_t lsm303agr_xl_operating_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg4_a.hr = hr;
+    ctrl_reg4_a.hr = hr & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG4_A,
                               (uint8_t *)&ctrl_reg4_a, 1);
   }
@@ -464,7 +463,7 @@ int32_t lsm303agr_xl_data_rate_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg1_a.odr = (uint8_t)val;
+    ctrl_reg1_a.odr = (uint8_t)val & 0x0FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG1_A,
                               (uint8_t *)&ctrl_reg1_a, 1);
   }
@@ -560,7 +559,7 @@ int32_t lsm303agr_xl_high_pass_on_outputs_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg2_a.fds = (uint8_t)val;
+    ctrl_reg2_a.fds = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG2_A,
                               (uint8_t *)&ctrl_reg2_a, 1);
   }
@@ -619,7 +618,7 @@ int32_t lsm303agr_xl_high_pass_bandwidth_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg2_a.hpcf = (uint8_t)val;
+    ctrl_reg2_a.hpcf = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG2_A,
                               (uint8_t *)&ctrl_reg2_a, 1);
   }
@@ -698,7 +697,7 @@ int32_t lsm303agr_xl_high_pass_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg2_a.hpm = (uint8_t)val;
+    ctrl_reg2_a.hpm = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG2_A,
                               (uint8_t *)&ctrl_reg2_a, 1);
   }
@@ -770,7 +769,7 @@ int32_t lsm303agr_xl_full_scale_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg4_a.fs = (uint8_t)val;
+    ctrl_reg4_a.fs = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG4_A,
                               (uint8_t *)&ctrl_reg4_a, 1);
   }
@@ -842,7 +841,7 @@ int32_t lsm303agr_xl_block_data_update_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg4_a.bdu = (uint8_t)val;
+    ctrl_reg4_a.bdu = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG4_A,
                               (uint8_t *)&ctrl_reg4_a, 1);
   }
@@ -976,12 +975,9 @@ int32_t lsm303agr_acceleration_raw_get(const stmdev_ctx_t *ctx,
 
   if (ret != 0) { return ret; }
 
-  val[0] = (int16_t)buff[1];
-  val[0] = (val[0] * 256) + (int16_t)buff[0];
-  val[1] = (int16_t)buff[3];
-  val[1] = (val[1] * 256) + (int16_t)buff[2];
-  val[2] = (int16_t)buff[5];
-  val[2] = (val[2] * 256) + (int16_t)buff[4];
+  val[0] = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
+  val[1] = (int16_t)(buff[2] | ((uint16_t)buff[3] << 8));
+  val[2] = (int16_t)(buff[4] | ((uint16_t)buff[5] << 8));
 
   return ret;
 }
@@ -1041,12 +1037,9 @@ int32_t lsm303agr_mag_user_offset_get(const stmdev_ctx_t *ctx, int16_t *val)
 
   if (ret != 0) { return ret; }
 
-  val[0] = (int16_t)buff[1];
-  val[0] = (val[0] * 256) + (int16_t)buff[0];
-  val[1] = (int16_t)buff[3];
-  val[1] = (val[1] * 256) + (int16_t)buff[2];
-  val[2] = (int16_t)buff[5];
-  val[2] = (val[2] * 256) + (int16_t)buff[4];
+  val[0] = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
+  val[1] = (int16_t)(buff[2] | ((uint16_t)buff[3] << 8));
+  val[2] = (int16_t)(buff[4] | ((uint16_t)buff[5] << 8));
 
   return ret;
 }
@@ -1070,7 +1063,7 @@ int32_t lsm303agr_mag_operating_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_a_m.md = (uint8_t)val;
+    cfg_reg_a_m.md = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_A_M,
                               (uint8_t *)&cfg_reg_a_m, 1);
   }
@@ -1138,7 +1131,7 @@ int32_t lsm303agr_mag_data_rate_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_a_m.odr = (uint8_t)val;
+    cfg_reg_a_m.odr = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_A_M,
                               (uint8_t *)&cfg_reg_a_m, 1);
   }
@@ -1210,7 +1203,7 @@ int32_t lsm303agr_mag_power_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_a_m.lp = (uint8_t)val;
+    cfg_reg_a_m.lp = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_A_M,
                               (uint8_t *)&cfg_reg_a_m, 1);
   }
@@ -1274,7 +1267,7 @@ int32_t lsm303agr_mag_offset_temp_comp_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_a_m.comp_temp_en = (uint8_t)val;
+    cfg_reg_a_m.comp_temp_en = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_A_M,
                               (uint8_t *)&cfg_reg_a_m, 1);
   }
@@ -1325,7 +1318,7 @@ int32_t lsm303agr_mag_low_pass_bandwidth_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_b_m.lpf = (uint8_t)val;
+    cfg_reg_b_m.lpf = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_B_M,
                               (uint8_t *)&cfg_reg_b_m, 1);
   }
@@ -1389,7 +1382,7 @@ int32_t lsm303agr_mag_set_rst_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_b_m.set_rst = (uint8_t)val;
+    cfg_reg_b_m.set_rst = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_B_M,
                               (uint8_t *)&cfg_reg_b_m, 1);
   }
@@ -1463,7 +1456,7 @@ int32_t lsm303agr_mag_set_rst_sensor_single_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_b_m.off_canc_one_shot = (uint8_t)val;
+    cfg_reg_b_m.off_canc_one_shot = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_B_M,
                               (uint8_t *)&cfg_reg_b_m, 1);
   }
@@ -1521,7 +1514,7 @@ int32_t lsm303agr_mag_block_data_update_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_c_m.bdu = (uint8_t)val;
+    cfg_reg_c_m.bdu = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_C_M,
                               (uint8_t *)&cfg_reg_c_m, 1);
   }
@@ -1616,12 +1609,9 @@ int32_t lsm303agr_magnetic_raw_get(const stmdev_ctx_t *ctx, int16_t *val)
 
   if (ret != 0) { return ret; }
 
-  val[0] = (int16_t)buff[1];
-  val[0] = (val[0] * 256) + (int16_t)buff[0];
-  val[1] = (int16_t)buff[3];
-  val[1] = (val[1] * 256) + (int16_t)buff[2];
-  val[2] = (int16_t)buff[5];
-  val[2] = (val[2] * 256) + (int16_t)buff[4];
+  val[0] = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
+  val[1] = (int16_t)(buff[2] | ((uint16_t)buff[3] << 8));
+  val[2] = (int16_t)(buff[4] | ((uint16_t)buff[5] << 8));
 
   return ret;
 }
@@ -1674,7 +1664,7 @@ int32_t lsm303agr_xl_self_test_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg4_a.st = (uint8_t)val;
+    ctrl_reg4_a.st = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG4_A,
                               (uint8_t *)&ctrl_reg4_a, 1);
   }
@@ -1742,7 +1732,7 @@ int32_t lsm303agr_xl_data_format_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg4_a.ble = (uint8_t)val;
+    ctrl_reg4_a.ble = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG4_A,
                               (uint8_t *)&ctrl_reg4_a, 1);
   }
@@ -1805,7 +1795,7 @@ int32_t lsm303agr_xl_boot_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg5_a.boot = (uint8_t)val;
+    ctrl_reg5_a.boot = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG5_A,
                               (uint8_t *)&ctrl_reg5_a, 1);
   }
@@ -1889,7 +1879,7 @@ int32_t lsm303agr_mag_reset_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    cfg_reg_a_m.soft_rst = (uint8_t)val;
+    cfg_reg_a_m.soft_rst = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_A_M,
                               (uint8_t *)&cfg_reg_a_m, 1);
   }
@@ -1938,7 +1928,7 @@ int32_t lsm303agr_mag_boot_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    cfg_reg_a_m.reboot = (uint8_t)val;
+    cfg_reg_a_m.reboot = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_A_M,
                               (uint8_t *)&cfg_reg_a_m, 1);
   }
@@ -1987,7 +1977,7 @@ int32_t lsm303agr_mag_self_test_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    cfg_reg_c_m.self_test = (uint8_t)val;
+    cfg_reg_c_m.self_test = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_C_M,
                               (uint8_t *)&cfg_reg_c_m, 1);
   }
@@ -2037,7 +2027,7 @@ int32_t lsm303agr_mag_data_format_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_c_m.ble = (uint8_t)val;
+    cfg_reg_c_m.ble = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_C_M,
                               (uint8_t *)&cfg_reg_c_m, 1);
   }
@@ -2188,7 +2178,7 @@ int32_t lsm303agr_xl_int1_gen_threshold_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    int1_ths_a.ths = (uint8_t)val;
+    int1_ths_a.ths = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_INT1_THS_A,
                               (uint8_t *)&int1_ths_a, 1);
   }
@@ -2242,7 +2232,7 @@ int32_t lsm303agr_xl_int1_gen_duration_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    int1_duration_a.d = (uint8_t)val;
+    int1_duration_a.d = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_INT1_DURATION_A,
                               (uint8_t *)&int1_duration_a, 1);
   }
@@ -2363,7 +2353,7 @@ int32_t lsm303agr_xl_int2_gen_threshold_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    int2_ths_a.ths = (uint8_t)val;
+    int2_ths_a.ths = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_INT2_THS_A,
                               (uint8_t *)&int2_ths_a, 1);
   }
@@ -2417,7 +2407,7 @@ int32_t lsm303agr_xl_int2_gen_duration_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    int2_duration_a.d = (uint8_t)val;
+    int2_duration_a.d = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_INT2_DURATION_A,
                               (uint8_t *)&int2_duration_a, 1);
   }
@@ -2482,7 +2472,7 @@ int32_t lsm303agr_xl_high_pass_int_conf_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg2_a.hp = (uint8_t)val;
+    ctrl_reg2_a.hp = (uint8_t)val & 0x07U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG2_A,
                               (uint8_t *)&ctrl_reg2_a, 1);
   }
@@ -2607,7 +2597,7 @@ int32_t lsm303agr_xl_int2_pin_detect_4d_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg5_a.d4d_int2 = (uint8_t)val;
+    ctrl_reg5_a.d4d_int2 = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG5_A,
                               (uint8_t *)&ctrl_reg5_a, 1);
   }
@@ -2661,7 +2651,7 @@ int32_t lsm303agr_xl_int2pin_notification_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg5_a.lir_int2 = (uint8_t)val;
+    ctrl_reg5_a.lir_int2 = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG5_A,
                               (uint8_t *)&ctrl_reg5_a, 1);
   }
@@ -2728,7 +2718,7 @@ int32_t lsm303agr_xl_int1_pin_detect_4d_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg5_a.d4d_int1 = (uint8_t)val;
+    ctrl_reg5_a.d4d_int1 = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG5_A,
                               (uint8_t *)&ctrl_reg5_a, 1);
   }
@@ -2782,7 +2772,7 @@ int32_t lsm303agr_xl_int1pin_notification_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg5_a.lir_int1 = (uint8_t)val;
+    ctrl_reg5_a.lir_int1 = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG5_A,
                               (uint8_t *)&ctrl_reg5_a, 1);
   }
@@ -2899,7 +2889,7 @@ int32_t lsm303agr_mag_offset_int_conf_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_b_m.int_on_dataoff = (uint8_t)val;
+    cfg_reg_b_m.int_on_dataoff = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_B_M,
                               (uint8_t *)&cfg_reg_b_m, 1);
   }
@@ -2964,7 +2954,7 @@ int32_t lsm303agr_mag_drdy_on_pin_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    cfg_reg_c_m.int_mag = (uint8_t)val;
+    cfg_reg_c_m.int_mag = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_C_M,
                               (uint8_t *)&cfg_reg_c_m, 1);
   }
@@ -3013,7 +3003,7 @@ int32_t lsm303agr_mag_int_on_pin_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    cfg_reg_c_m.int_mag_pin = (uint8_t)val;
+    cfg_reg_c_m.int_mag_pin = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_C_M,
                               (uint8_t *)&cfg_reg_c_m, 1);
   }
@@ -3146,8 +3136,7 @@ int32_t lsm303agr_mag_int_gen_threshold_get(const stmdev_ctx_t *ctx,
 
   if (ret != 0) { return ret; }
 
-  val[0] = (int16_t)buff[1];
-  val[0] = (val[0] * 256) + (int16_t)buff[0];
+  val[0] = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
 
   return ret;
 }
@@ -3183,7 +3172,7 @@ int32_t lsm303agr_xl_fifo_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg5_a.fifo_en = (uint8_t)val;
+    ctrl_reg5_a.fifo_en = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG5_A,
                               (uint8_t *)&ctrl_reg5_a, 1);
   }
@@ -3233,7 +3222,7 @@ int32_t lsm303agr_xl_fifo_watermark_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    fifo_ctrl_reg_a.fth = (uint8_t)val;
+    fifo_ctrl_reg_a.fth = (uint8_t)val & 0x1FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_FIFO_CTRL_REG_A,
                               (uint8_t *)&fifo_ctrl_reg_a, 1);
   }
@@ -3284,7 +3273,7 @@ int32_t lsm303agr_xl_fifo_trigger_event_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    fifo_ctrl_reg_a.tr = (uint8_t)val;
+    fifo_ctrl_reg_a.tr = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_FIFO_CTRL_REG_A,
                               (uint8_t *)&fifo_ctrl_reg_a, 1);
   }
@@ -3348,7 +3337,7 @@ int32_t lsm303agr_xl_fifo_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    fifo_ctrl_reg_a.fm = (uint8_t)val;
+    fifo_ctrl_reg_a.fm = (uint8_t)val & 0x03U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_FIFO_CTRL_REG_A,
                               (uint8_t *)&fifo_ctrl_reg_a, 1);
   }
@@ -3602,7 +3591,7 @@ int32_t lsm303agr_tap_threshold_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    click_ths_a.ths = (uint8_t)val;
+    click_ths_a.ths = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CLICK_THS_A,
                               (uint8_t *)&click_ths_a, 1);
   }
@@ -3654,7 +3643,7 @@ int32_t lsm303agr_shock_dur_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    time_limit_a.tli = (uint8_t)val;
+    time_limit_a.tli = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_TIME_LIMIT_A,
                               (uint8_t *)&time_limit_a, 1);
   }
@@ -3831,7 +3820,7 @@ int32_t lsm303agr_act_threshold_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    act_ths_a.acth = (uint8_t)val;
+    act_ths_a.acth = (uint8_t)val & 0x7FU;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_ACT_THS_A,
                               (uint8_t *)&act_ths_a, 1);
   }
@@ -3945,7 +3934,7 @@ int32_t lsm303agr_xl_spi_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg4_a.spi_enable = (uint8_t)val;
+    ctrl_reg4_a.spi_enable = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CTRL_REG4_A,
                               (uint8_t *)&ctrl_reg4_a, 1);
   }
@@ -4009,7 +3998,7 @@ int32_t lsm303agr_mag_i2c_interface_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    cfg_reg_c_m.i2c_dis = (uint8_t)val;
+    cfg_reg_c_m.i2c_dis = (uint8_t)val & 0x01U;
     ret = lsm303agr_write_reg(ctx, LSM303AGR_CFG_REG_C_M,
                               (uint8_t *)&cfg_reg_c_m, 1);
   }
